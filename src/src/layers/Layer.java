@@ -36,6 +36,7 @@ public abstract class Layer {
     public abstract double[] getOutput(double[] input);
 
     //Taking the loss and the output
+    //This is how this neural network learn.
     public abstract void backPropagation(double[] dLdO);
     public abstract void backPropagation(List<double[][]> dLdO);
 
