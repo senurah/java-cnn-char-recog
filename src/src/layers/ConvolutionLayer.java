@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static data.MatrixUtility.add;
+import static data.MatrixUtility.multiply;
+
 public class ConvolutionLayer extends Layer{
 
     //To generate the filers we are using a seed
@@ -18,14 +21,19 @@ public class ConvolutionLayer extends Layer{
     private int _inLength;
     private int _inRows;
     private int _inCols;
+    private double _learningRate;
 
-    public ConvolutionLayer(int _filterSize, int _stepSize, int _inLength, int _inRows, int _inCols,long SEED, int numFilters) {
+    //Storing the values in the forward pass
+    private List<double[][]> _lastInput;
+
+    public ConvolutionLayer(int _filterSize, int _stepSize, int _inLength, int _inRows, int _inCols,long SEED, int numFilters,double _learningRate ) {
         this.SEED = SEED;
         this._filterSize = _filterSize;
         this._stepSize = _stepSize;
         this._inLength = _inLength;
         this._inRows = _inRows;
         this._inCols = _inCols;
+        this._learningRate = _learningRate;
 
         generateRandomFilters(numFilters);
     }
@@ -62,6 +70,10 @@ public class ConvolutionLayer extends Layer{
         This method is going through each input layer convolve each one with filters
     * */
     public List<double[][]> convolutionForwardPass(List<double[][]> list){
+
+        //Saving the last input for the backward pass
+        _lastInput = list;
+
         List<double[][]> output = new ArrayList<>();
 
         //Convolution process with each filter
@@ -137,6 +149,28 @@ public class ConvolutionLayer extends Layer{
         return output;
     }
 
+    //Method to space out the output loss matrix to use it in the convolution method
+    public double[][] spaceArray(double[][] input){
+        if(_stepSize == 1){
+            return input;
+        }
+
+        //Size of the output
+        int outRows = (input.length-1)*_stepSize+1;
+        int outCols = (input[0].length-1)*_stepSize +1;
+
+        double[][] output = new double[outRows][outCols];
+
+        for(int i = 0; i< input.length ; i++){
+            for(int j =0; j< input[0].length; j++){
+                //Setting the output value : and stretching it using the stepSize
+                output[i*_stepSize][j*_stepSize] = input[i][j];
+            }
+        }
+
+        return output;
+    }
+
 
     @Override
     public double[] getOutput(List<double[][]> input) {
@@ -160,6 +194,55 @@ public class ConvolutionLayer extends Layer{
 
     @Override
     public void backPropagation(List<double[][]> dLdO) {
+
+        //Finding the filter loss
+        //Initializing the filter matrix list
+        List<double[][]> filterDelta = new ArrayList<>();
+
+        for(int f= 0; f < _filters.size(); f++){
+            //Creating new matrix for each filter update
+            filterDelta.add(new double[_filterSize][_filterSize]);
+        }
+
+        //Finding each filter contributed to the loss
+        for(int i =0; i <_lastInput.size(); i++){
+
+            for(int f=0; f<_filters.size(); f++){
+
+                double[][] currFilter = _filters.get(f);
+                //getting the current dL/dO value
+                double[][] error = dLdO.get(i*_filters.size()+f);
+
+                //Spacing out the error to pass it in to the convolution method
+                double[][] spacedError = spaceArray(error);
+
+                //Doing the convolution process
+                double[][] dLdF = convolve(_lastInput.get(i),spacedError,1);
+
+                //Updating the filters : to do that need a learning rate
+                // :how much we should multiply before adding or subtracting the current filter.
+
+                //Error * learning rate and add that to the filter = new filter
+
+                double[][] delta = multiply(dLdF,_learningRate*-1);
+                //Using -1 to shrink?
+
+                //should sum up all the errors
+                double[][] newTotalDelta = add(filterDelta.get(f),delta);
+                filterDelta.set(f,newTotalDelta);
+
+
+
+            }
+
+        }
+
+        //Updating the filters : learning section
+        for(int f= 0; f< _filters.size(); f++){
+            //new filter = current filter + total delta(error)
+            double[][] modified = add(filterDelta.get(f),_filters.get(f));
+            _filters.set(f,modified);
+        }
 
     }
 
