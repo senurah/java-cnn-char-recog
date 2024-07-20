@@ -12,12 +12,21 @@ public class FullyConnectedLayer extends Layer{
     private int _outLength;
     //using Random SEEDs to give random values to the weights
     private long SEED;
+    //To keep track of the z value
+    private double[] lastZ;
+    //addressing the value changing error in the derivative ReLu method
+    private final double leak = 0.01;
+    //Keeping track of the last input
+    private double[] lastX;
+    //Learning rate
+    private int _learningRate;
 
 
-    public FullyConnectedLayer(int _inLength, int _outLength,long SEED) {
+    public FullyConnectedLayer(int _inLength, int _outLength,long SEED,int _learningRate) {
         this._inLength = _inLength;
         this._outLength = _outLength;
         this.SEED = SEED;
+        this._learningRate = _learningRate;
 
         //Setting the weights array
         _weights = new double[_inLength][_outLength];
@@ -29,6 +38,9 @@ public class FullyConnectedLayer extends Layer{
         double[] z = new double[_outLength];
         double[] out= new double[_outLength];
 
+        //Keeping track of the last input
+        lastX = input;
+
         //Moving through each input nodes
         for(int i = 0; i<_inLength ; i++){
             for(int j =0; j<_outLength;j++){
@@ -36,6 +48,9 @@ public class FullyConnectedLayer extends Layer{
                 z[j] += input[i] * _weights[i][j];
             }
         }
+
+        //Storing the last z in order to use in the back Propagation
+        lastZ = z;
 
         //Running the result through the activation function
         for(int i = 0; i<_inLength ; i++){
@@ -51,7 +66,7 @@ public class FullyConnectedLayer extends Layer{
 
     @Override
     public double[] getOutput(List<double[][]> input) {
-        //converting
+        //converting matrix to vector
         double[] vector = matrixToVector(input);
         return  getOutput(vector);
     }
@@ -77,10 +92,60 @@ public class FullyConnectedLayer extends Layer{
     @Override
     public void backPropagation(double[] dLdO) {
 
+        double[] dLdX = new double[_inLength];
+
+        //Derivative of the ReLu function
+        double dOdz;
+        //Xi = the last input
+        double dzdw;
+        //weight loss per each weight
+        double dLdw;
+        // dLdw = dLdO * dOdz * dzdw;
+        //For back propagation
+        double dzdx;
+
+        //setting the values
+        for(int k=0; k< _inLength ; k++){
+
+            //In order to find the error in the previous layer for passing the backPropagation
+            double dLdX_sum = 0;
+
+            for(int j=0; j <_outLength; j++){
+
+                //Should input the last z value to the derivativeReLu method
+                dOdz = derivativeReLu(lastZ[j]);
+                dzdw = lastX[k];
+                dzdx = _weights[k][j];
+
+                //Chain rule
+                dLdw = dLdO[j] * dOdz * dzdw;
+
+                //Multiplying it by the learning rate and updating the weight
+                _weights[k][j] -= dLdw*_learningRate;
+
+                //Chain rule for finding the error in the previous layer
+                dLdX_sum += dLdO[j]*dOdz* dzdx;
+
+            }
+
+            dLdX[k] = dLdX_sum;
+        }
+
+
+        //Passing to the previous layer
+        if(_previousLayer != null){
+            _previousLayer.backPropagation(dLdX);
+        }
+
     }
 
     @Override
     public void backPropagation(List<double[][]> dLdO) {
+        //covering matrix to vector
+        double[] vector = matrixToVector(dLdO);
+        //then back propagation
+        backPropagation(vector);
+
 
     }
 
@@ -101,7 +166,7 @@ public class FullyConnectedLayer extends Layer{
 
     @Override
     public int getOutputElements() {
-        return 0;
+        return _outLength;
     }
 
     public void setRandomWeights(){
@@ -122,6 +187,16 @@ public class FullyConnectedLayer extends Layer{
             return 0;
         }else{
             return input;
+        }
+    }
+
+    //Derivative of the ReLu - dOdz
+    public double derivativeReLu(double input){
+        if(input <=0){
+            //without returning 0 as it causes dead area returning the leak
+            return leak;
+        }else{
+            return 1;
         }
     }
 
