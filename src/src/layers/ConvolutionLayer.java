@@ -189,7 +189,9 @@ public class ConvolutionLayer extends Layer{
 
     @Override
     public void backPropagation(double[] dLdO) {
-
+        //converting vector to matrix
+        List<double[][]> matrixInput = vectorToMatrix(dLdO, _inLength,_inRows,_inCols);
+        backPropagation(matrixInput);
     }
 
     @Override
@@ -199,6 +201,9 @@ public class ConvolutionLayer extends Layer{
         //Initializing the filter matrix list
         List<double[][]> filterDelta = new ArrayList<>();
 
+        //Making a list to keep track of the errors of the previous layer
+        List<double[][]> dLdOPreviousLayer = new ArrayList<>();
+
         for(int f= 0; f < _filters.size(); f++){
             //Creating new matrix for each filter update
             filterDelta.add(new double[_filterSize][_filterSize]);
@@ -206,6 +211,9 @@ public class ConvolutionLayer extends Layer{
 
         //Finding each filter contributed to the loss
         for(int i =0; i <_lastInput.size(); i++){
+
+            //Tracking the error for each input
+            double[][] errorForInput = new double[_inRows][_inCols];
 
             for(int f=0; f<_filters.size(); f++){
 
@@ -231,9 +239,17 @@ public class ConvolutionLayer extends Layer{
                 double[][] newTotalDelta = add(filterDelta.get(f),delta);
                 filterDelta.set(f,newTotalDelta);
 
+                //full convolution
+                //Flipping horizontally and vertically
+                double[][] flippedError = flipArrayHorizontal(flipArrayVertical(spacedError));
 
+                //Full convolution and adding it to the existing error for this input
+                errorForInput  = add(errorForInput,fullConvolution(currFilter,flippedError));
 
             }
+
+            //adding to the sum total across the all filters
+            dLdOPreviousLayer.add(errorForInput);
 
         }
 
@@ -244,7 +260,120 @@ public class ConvolutionLayer extends Layer{
             _filters.set(f,modified);
         }
 
+
+        //Finally propagating to the previous layer
+        if(_previousLayer != null){
+            _previousLayer.backPropagation(dLdOPreviousLayer);
+        }
+
     }
+
+    //Creating a method to flip the matrix values horizontally and vertically to make the (dL/dO)*
+    public double[][] flipArrayHorizontal(double[][] array){
+
+        int rows = array.length;
+        int cols = array[0].length;
+
+        double[][] output = new double[rows][cols];
+
+        //flipping
+        for(int i =0; i< rows; i++){
+            for(int j=0; j< cols; j++){
+                //Writing the array backwards
+                output[rows-i-1][j] = array[i][j];
+            }
+        }
+
+        return output;
+    }
+
+    public double[][] flipArrayVertical(double[][] array){
+
+        int rows = array.length;
+        int cols = array[0].length;
+
+        double[][] output = new double[rows][cols];
+
+        //flipping
+        for(int i =0; i< rows; i++){
+            for(int j=0; j< cols; j++){
+                //Writing the array backwards
+                output[cols-j-1][j] = array[i][j];
+            }
+        }
+
+        return output;
+    }
+
+
+    //Method for full convolution
+    public double[][] fullConvolution(double[][] input, double[][] filter){
+        //Should add the filter lengths
+        //As the filter is sometimes bigger than the inputs
+        int outRows = (input.length + filter.length) +1;
+        int outCols = (input[0].length + filter[0].length)+1;
+
+        //Dimensions of the input matrix
+        int inRows = input.length;
+        int inCols = input[0].length;
+
+        //Dimensions of the filter matrix
+        int fRows = filter.length;
+        int fCols = filter[0].length;
+
+        //Creating an output matrix
+        double[][] output = new double[outRows][outCols];
+
+        //To keep track of the output matrix coords
+        int outRow = 0;
+        int outCol;
+
+        //Moving the output loss layer across the filter layer
+        //This should start from a negative value as the layer should pass the right bottom corner first
+
+        for(int i = -fRows+1; i <= inRows; i++){
+
+            outCol = 0;
+            //Moving the filter down
+            for(int j = -fCols +1 ; j < inCols  ; j++){
+
+                //Summing the multiplied values
+                double sum = 0.0;
+
+                //This position indicates the upper right corner of the filter applied on the input layer
+                //Should apply other positions as a filter around this spot
+
+                //Applying the filter around this position
+                for(int x =0; x< fRows ; x++){
+                    for(int y=0; y< fCols; y++){
+                        //Now should multiply the input value and the filter value
+                        int inputRowIndex = i + x;
+                        int inputColIndex = j + y;
+
+                        //Checking the row and the column indexing are valid
+                        if(inputRowIndex >= 0 && inputColIndex >=0 && inputRowIndex < inRows && inputColIndex < inCols){
+                            double value = filter[x][y] * input[inputRowIndex][inputColIndex];
+                            sum += value;
+                        }
+
+                    }
+                }
+                //Putting the values to the output matrix
+                output[outRow][outCol] = sum;
+                //Incrementing the output col
+                outCol++;
+
+            }
+            //Incrementing the output row
+            outRow++;
+
+        }
+
+        return output;
+    }
+
+
+
 
     @Override
     public int getOutputLength() {
