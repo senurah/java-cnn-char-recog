@@ -19,10 +19,10 @@ public class FullyConnectedLayer extends Layer{
     //Keeping track of the last input
     private double[] lastX;
     //Learning rate
-    private int _learningRate;
+    private double _learningRate;
 
 
-    public FullyConnectedLayer(int _inLength, int _outLength,long SEED,int _learningRate) {
+    public FullyConnectedLayer(int _inLength, int _outLength,long SEED,double _learningRate) {
         this._inLength = _inLength;
         this._outLength = _outLength;
         this.SEED = SEED;
@@ -38,12 +38,16 @@ public class FullyConnectedLayer extends Layer{
         double[] z = new double[_outLength];
         double[] out= new double[_outLength];
 
+        // Debugging: Print the lengths of input and weights
+        System.out.println("Input length: " + input.length);
+        System.out.println("Weights dimensions: " + _weights.length + "x" + _weights[0].length);
+
         //Keeping track of the last input
         lastX = input;
 
         //Moving through each input nodes
-        for(int i = 0; i<_inLength ; i++){
-            for(int j =0; j<_outLength;j++){
+        for(int i = 0; i <_inLength ; i++){
+            for(int j = 0; j <_outLength;j++){
                 //calculation - multiplying them with the weight
                 z[j] += input[i] * _weights[i][j];
             }

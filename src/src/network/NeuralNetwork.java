@@ -12,11 +12,15 @@ import static data.MatrixUtility.multiply;
 public class NeuralNetwork {
 
     List<Layer> _layers;
+    //Scaling issue : should scale down initial value of each input down.
+    //Using a scale factor
+    double scaleFactor;
 
-    public NeuralNetwork(List<Layer> _layers) {
+
+    public NeuralNetwork(List<Layer> _layers,double scaleFactor) {
         this._layers = _layers;
+        this.scaleFactor = scaleFactor;
         linkLayer();
-
 
     }
 
@@ -81,9 +85,53 @@ public class NeuralNetwork {
     public int guess(Image image){
         //Extracting the image data and storing it in the inList
         List<double[][]> inList = new ArrayList<>();
-        inList.add(image.getData());
+        //Before adding to the initial list , scaling down the image by multiplying
+        inList.add(multiply(image.getData(),(1.0/scaleFactor)));
 
-        return 1;
+        //calling the network to make a guess
+        double[] out = _layers.get(0).getOutput(inList);
+        int guess = getMaxIndex(out);
+
+        return guess;
+    }
+
+    //Test method to use this guess method
+    public float test(List<Image> images){
+
+        int correct = 0;
+
+        //Counting the correct guesses
+        for(Image image: images){
+            int guess = guess(image);
+
+            //Checking the guess is correct
+            if(guess == image.getLabel()){
+                correct++;
+            }
+        }
+        //Returning the percentage of correct outputs
+        //Casting correct to a float
+        return ((float) correct/images.size());
+
+    }
+
+    //Train function
+    public void train(List<Image> images){
+
+        for(Image img: images){
+            //Converting Images to the list format
+            List<double[][]> inList = new ArrayList<>();
+            //Before adding to the initial list , scaling down the image by multiplying
+            inList.add(multiply(img.getData(),(1.0/scaleFactor)));
+
+            double[] out = _layers.get(0).getOutput(inList);
+            //Getting the error
+            double[] dLdoO = getErrors(out,img.getLabel());
+
+            //Back propagation
+            _layers.get(_layers.size()-1).backPropagation(dLdoO);
+
+        }
     }
 
 
