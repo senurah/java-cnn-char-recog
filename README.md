@@ -22,9 +22,6 @@ To train the CNN model, use the provided training script. Adjust hyperparameters
 ## Evaluation
 Evaluate the trained model using the evaluation script. This will provide metrics such as accuracy, precision, and recall.
 
-## Contributing
-Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
-
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
