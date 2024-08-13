@@ -7,9 +7,9 @@ import java.util.List;
 public class DataReader {
 
     //Creating a class to get the data from the mnist data folder to the image class
-    //turn the double array into an image
+    //Converting the double array into an image
 
-    //to track the image sixe
+    //to track the image size
     private final int rows = 28;
     private final int cols = 28;
 
@@ -19,9 +19,9 @@ public class DataReader {
         //creating the empty list of images
         List<Image> images = new ArrayList<>();
 
-        //reading files
-        //BufferedReader can read characters efficiently.
-        /**
+        /* Reading files using BufferedReader.
+         * BufferedReader can read characters efficiently.
+         * BufferedReader is used to read the text from a character-based input stream.
          * Internal buffer 8192 characters
          * Reduced number of communications to the disk. --> Efficient
          * Using FileReader class as we can't give the direct file path
@@ -38,18 +38,16 @@ public class DataReader {
 
                 //Converting data into double form
                 double[][] data = new double[rows][cols];
-
-                /*in the data set label represent the digit and if we convert that line in to
+                /*
+                  In the data set label represent the digit and if we convert that line in to
                   28*28 line we can represent it as a picture.
-                * */
+                */
                 //Extracting the label
                 int label = Integer.parseInt(lineItems[0]);
-
                 int i = 1;
-
-                for(int row=0; row<rows;row++){
+                for(int row = 0; row < rows; row++){
                     for(int col = 0; col<cols; col++){
-                        //passing and casting to a double
+                        //Passing and casting to a double
                         data[row][col] = (double) Integer.parseInt(lineItems[i]);
                         i++;
                     }
@@ -61,9 +59,8 @@ public class DataReader {
             }
 
         }catch (Exception e){
-            e.printStackTrace();
+            throw new IllegalArgumentException("File not found " + path);
         }
         return images;
     }
-    //this was test.
 }

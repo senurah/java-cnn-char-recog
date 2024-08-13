@@ -3,6 +3,7 @@ import data.Image;
 import network.NetworkBuilder;
 import network.NeuralNetwork;
 
+import java.io.File;
 import java.util.List;
 
 import static java.util.Collections.shuffle;
@@ -15,7 +16,6 @@ public class Main {
         //getting the data to the data reader
         //List<Image> images = new DataReader().readData("src/data/mnist_test.csv");
         //System.out.printf(images.get(0).toString());
-
 
         System.out.println("Starting data loading.....");
         List<Image> imagesTest = new DataReader().readData("src/data/mnist_test.csv");
@@ -42,8 +42,6 @@ public class Main {
         float rate = net.test(imagesTest);
         System.out.println("Pre training success rate: "+rate);
 
-
-
         int epochs = 3;
         for(int i=0; i< epochs; i++){
             //Shuffling the training images
@@ -53,8 +51,6 @@ public class Main {
             System.out.println("Success rate after round "+i+": "+rate);
 
         }
-
-
 
     }
 }

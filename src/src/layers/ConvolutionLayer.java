@@ -65,10 +65,12 @@ public class ConvolutionLayer extends Layer{
         _filters = filters;
     }
 
-    //Convolution forward pass method
-    /*
-        This method is going through each input layer convolve each one with filters
-    * */
+    /**
+     * Convolution forward pass method
+     * This method is going through each input layer convolve each one with filters
+     * @param list :input layer
+     * @return : output layer
+     */
     public List<double[][]> convolutionForwardPass(List<double[][]> list){
 
         //Saving the last input for the backward pass
@@ -81,7 +83,6 @@ public class ConvolutionLayer extends Layer{
             for(double[][] filter : _filters){
                 output.add(convolve(list.get(n), filter ,_stepSize));
             }
-
 
         }
 
@@ -228,8 +229,7 @@ public class ConvolutionLayer extends Layer{
                 double[][] dLdF = convolve(_lastInput.get(i),spacedError,1);
 
                 //Updating the filters : to do that need a learning rate
-                // :how much we should multiply before adding or subtracting the current filter.
-
+                // How much we should multiply before adding or subtracting the current filter.
                 //Error * learning rate and add that to the filter = new filter
 
                 double[][] delta = multiply(dLdF,_learningRate*-1);
