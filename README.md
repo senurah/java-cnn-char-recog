@@ -2,6 +2,14 @@
 
 This project implements a Convolutional Neural Network (CNN) for character recognition in Java. It was developed to practice and gain an understanding of CNNs.
 
+## How to use
+1) Download the MNIST data set using the provided link below.
+2) Change the "example_path" paths in the Main.class
+   
+   ``  List<Image> imagesTest = new DataReader().readData("example_path/mnist_test.csv");``
+   
+   `` List<Image> imagesTrain = new DataReader().readData("example_path/mnist_train.csv");``
+
 ## Dataset
 This project uses the MNIST dataset for handwritten digits by default. You can download it from [here](http://yann.lecun.com/exdb/mnist/). Place the dataset in the `data` directory.
 
