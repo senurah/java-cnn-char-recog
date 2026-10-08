@@ -166,6 +166,6 @@ public class MaxPoolLayer extends Layer{
 
     @Override
     public int getOutputElements() {
-        return _inRows * getOutputCols() *getOutputRows();
+        return getOutputLength() * getOutputCols() * getOutputRows();
     }
 }
