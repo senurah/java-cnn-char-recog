@@ -3,7 +3,6 @@ import data.Image;
 import network.NetworkBuilder;
 import network.NeuralNetwork;
 
-import java.io.File;
 import java.util.List;
 
 import static java.util.Collections.shuffle;
@@ -13,16 +12,20 @@ public class Main {
 
         long SEED = 123;
 
-        //getting the data to the data reader
-        //List<Image> images = new DataReader().readData("src/data/mnist_test.csv");
-        //System.out.printf(images.get(0).toString());
-
         System.out.println("Starting data loading.....");
-        List<Image> imagesTest = new DataReader().readData("src/data/mnist_test.csv");
-        List<Image> imagesTrain = new DataReader().readData("src/data/mnist_train.csv");
+        List<Image> imagesTest = new DataReader().readData("data/mnist_test.csv");
+        List<Image> imagesTrain = new DataReader().readData("data/mnist_train.csv");
 
-        System.out.println("Images Train size:"+ imagesTrain.size());
-        System.out.println("Images Test size :"+ imagesTest.size());
+        System.out.println("Images Train size: " + imagesTrain.size());
+        System.out.println("Images Test size : " + imagesTest.size());
+
+        // Support quick sanity run with "--quick" flag
+        boolean quickRun = args.length > 0 && args[0].equalsIgnoreCase("--quick");
+        if (quickRun) {
+            System.out.println("Running in quick-test mode (200 train / 100 test samples)...");
+            imagesTest = imagesTest.subList(0, 100);
+            imagesTrain = imagesTrain.subList(0, 200);
+        }
 
         //Building the network
         /*
@@ -40,7 +43,7 @@ public class Main {
 
         //Testing the success rate, before training
         float rate = net.test(imagesTest);
-        System.out.println("Pre training success rate: "+rate);
+        System.out.println("Pre training success rate: " + rate);
 
         int epochs = 3;
         for(int i=0; i< epochs; i++){
@@ -48,12 +51,8 @@ public class Main {
             shuffle(imagesTrain);
             net.train(imagesTrain);
             rate = net.test(imagesTest);
-            System.out.println("Success rate after round "+i+": "+rate);
-
+            System.out.println("Success rate after round " + i + ": " + rate);
         }
 
     }
 }
-
-
-

@@ -38,10 +38,6 @@ public class FullyConnectedLayer extends Layer{
         double[] z = new double[_outLength];
         double[] out= new double[_outLength];
 
-        // Debugging: Print the lengths of input and weights
-        System.out.println("Input length: " + input.length);
-        System.out.println("Weights dimensions: " + _weights.length + "x" + _weights[0].length);
-
         //Keeping track of the last input
         lastX = input;
 
@@ -57,11 +53,8 @@ public class FullyConnectedLayer extends Layer{
         lastZ = z;
 
         //Running the result through the activation function
-        for(int i = 0; i<_inLength ; i++){
-            for(int j =0; j<_outLength;j++){
-                //Activating the RELU function
-                out[j] = reLu(z[j]);
-            }
+        for(int j = 0; j < _outLength; j++){
+            out[j] = reLu(z[j]);
         }
 
         return out;
@@ -109,12 +102,12 @@ public class FullyConnectedLayer extends Layer{
         double dzdx;
 
         //setting the values
-        for(int k=0; k< _inLength ; k++){
+        for(int k=0; k< _inLength ; k++) {
 
             //In order to find the error in the previous layer for passing the backPropagation
             double dLdX_sum = 0;
 
-            for(int j=0; j <_outLength; j++){
+            for(int j=0; j <_outLength; j++) {
 
                 //Should input the last z value to the derivativeReLu method
                 dOdz = derivativeReLu(lastZ[j]);
