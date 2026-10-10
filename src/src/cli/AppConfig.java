@@ -34,6 +34,8 @@ public final class AppConfig {
 
     public static final boolean DEFAULT_VERBOSE = false;
     public static final boolean DEFAULT_INTERACTIVE = false;
+    public static final String DEFAULT_SAVE_PATH = null;
+    public static final String DEFAULT_LOAD_PATH = null;
 
     // Dataset & Execution settings
     private final String trainPath;
@@ -43,6 +45,10 @@ public final class AppConfig {
     private final int epochs;
     private final long seed;
     private final double scaleFactor;
+
+    // Model Persistence settings
+    private final String savePath;
+    private final String loadPath;
 
     // Convolution Layer settings
     private final int numFilters;
@@ -70,6 +76,8 @@ public final class AppConfig {
         this.epochs = builder.epochs;
         this.seed = builder.seed;
         this.scaleFactor = builder.scaleFactor;
+        this.savePath = builder.savePath;
+        this.loadPath = builder.loadPath;
 
         this.numFilters = builder.numFilters;
         this.filterSize = builder.filterSize;
@@ -106,6 +114,8 @@ public final class AppConfig {
     public int getEpochs() { return epochs; }
     public long getSeed() { return seed; }
     public double getScaleFactor() { return scaleFactor; }
+    public String getSavePath() { return savePath; }
+    public String getLoadPath() { return loadPath; }
 
     public int getNumFilters() { return numFilters; }
     public int getFilterSize() { return filterSize; }
@@ -167,13 +177,15 @@ public final class AppConfig {
                 verbose == appConfig.verbose &&
                 interactive == appConfig.interactive &&
                 Objects.equals(trainPath, appConfig.trainPath) &&
-                Objects.equals(testPath, appConfig.testPath);
+                Objects.equals(testPath, appConfig.testPath) &&
+                Objects.equals(savePath, appConfig.savePath) &&
+                Objects.equals(loadPath, appConfig.loadPath);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(trainPath, testPath, trainLimit, testLimit, epochs, seed,
-                scaleFactor, numFilters, filterSize, convStepSize, convLearningRate,
+                scaleFactor, savePath, loadPath, numFilters, filterSize, convStepSize, convLearningRate,
                 poolWindowSize, poolStepSize, numClasses, fcLearningRate, verbose, interactive);
     }
 
@@ -187,6 +199,8 @@ public final class AppConfig {
                 ", epochs=" + epochs +
                 ", seed=" + seed +
                 ", scaleFactor=" + scaleFactor +
+                ", savePath='" + savePath + '\'' +
+                ", loadPath='" + loadPath + '\'' +
                 ", numFilters=" + numFilters +
                 ", filterSize=" + filterSize +
                 ", convStepSize=" + convStepSize +
@@ -211,6 +225,8 @@ public final class AppConfig {
         private int epochs = DEFAULT_EPOCHS;
         private long seed = DEFAULT_SEED;
         private double scaleFactor = DEFAULT_SCALE_FACTOR;
+        private String savePath = DEFAULT_SAVE_PATH;
+        private String loadPath = DEFAULT_LOAD_PATH;
 
         private int numFilters = DEFAULT_NUM_FILTERS;
         private int filterSize = DEFAULT_FILTER_SIZE;
@@ -236,6 +252,8 @@ public final class AppConfig {
             this.epochs = config.epochs;
             this.seed = config.seed;
             this.scaleFactor = config.scaleFactor;
+            this.savePath = config.savePath;
+            this.loadPath = config.loadPath;
             this.numFilters = config.numFilters;
             this.filterSize = config.filterSize;
             this.convStepSize = config.convStepSize;
@@ -280,6 +298,16 @@ public final class AppConfig {
 
         public Builder scaleFactor(double scaleFactor) {
             this.scaleFactor = scaleFactor;
+            return this;
+        }
+
+        public Builder savePath(String savePath) {
+            this.savePath = savePath;
+            return this;
+        }
+
+        public Builder loadPath(String loadPath) {
+            this.loadPath = loadPath;
             return this;
         }
 

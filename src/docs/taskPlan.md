@@ -7,7 +7,7 @@ This document serves as the implementation tracking sheet for executing tasks vi
 ## Progress Overview
 - [x] **Phase 0: Core Foundation & Bug Fixes** (Completed)
 - [x] **Phase 1: CLI Configuration & Interactive Control Suite** (Completed)
-- [ ] **Phase 2: Model Weights Persistence**
+- [x] **Phase 2: Model Weights Persistence** (Completed)
 - [ ] **Phase 3: Preprocessing & Drawing Canvas**
 - [ ] **Phase 4: Core Java GUI Shell & Real-time Prediction**
 - [ ] **Phase 5: Intermediate Activation & Feature Map Visualization**
@@ -97,13 +97,15 @@ This document serves as the implementation tracking sheet for executing tasks vi
 
 ---
 
-### Phase 2: Model Weights Persistence
-- [ ] **TASK-201: `ModelSerializer` Implementation**
+### Phase 2: Model Weights Persistence (Completed)
+- [x] **TASK-201: `ModelSerializer` Implementation & Asynchronous Persistence Suite**
   - **Goal**: Export trained model weights to disk and reload them without retraining.
   - **Details**:
-    - Serialize convolution filter weights and fully connected weight matrix.
-    - Add `--save <path>` and `--load <path>` flags to CLI.
-  - **Verification**: Train for 1 epoch, save weights, reload into fresh network, verify identical test outputs.
+    - Serialized convolution filter weights (`List<double[][]>`) and fully connected weight matrix (`double[][]`) via pure Core Java binary I/O (`network.ModelSerializer`).
+    - Added non-blocking asynchronous persistence service (`service.ModelPersistenceService`) with `CompletableFuture` and EDT-safe `PersistenceCallback` routing.
+    - Added runtime protection guarding against disk I/O on the Swing Event Dispatch Thread (Rule 1.3).
+    - Integrated `--save <path>` and `--load <path>` flags into `cli.AppConfig`, `cli.CliArgsParser`, `cli.ConfigValidator`, `cli.ConfigRenderer`, and `Main.java` execution pipeline.
+  - **Status**: Completed; verified 1-epoch training, serialization to disk, reloading into a fresh network, and bit-for-bit identical test predictions across all samples in `test.Phase2Test` (42 tests passed, 0 failed; all 116 Phase 1 tests pass).
 
 ---
 

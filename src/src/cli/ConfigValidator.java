@@ -31,8 +31,20 @@ public final class ConfigValidator {
         validateTrainLimit(config.getTrainLimit());
         validateTestLimit(config.getTestLimit());
 
-        // Epochs
-        validateEpochs(config.getEpochs());
+        // Model persistence paths
+        if (config.getSavePath() != null && config.getSavePath().trim().isEmpty()) {
+            throw new ConfigValidationException("savePath", "Model save path cannot be empty string");
+        }
+        if (config.getLoadPath() != null && config.getLoadPath().trim().isEmpty()) {
+            throw new ConfigValidationException("loadPath", "Model load path cannot be empty string");
+        }
+
+        // Epochs (epochs=0 allowed when evaluating a loaded model)
+        if (config.getLoadPath() != null && !config.getLoadPath().trim().isEmpty()) {
+            validateEpochsWithLoad(config.getEpochs());
+        } else {
+            validateEpochs(config.getEpochs());
+        }
 
         // Scale factor
         validateScaleFactor(config.getScaleFactor());
@@ -78,6 +90,13 @@ public final class ConfigValidator {
         if (epochs < 1 || epochs > 1000) {
             throw new ConfigValidationException("epochs",
                     "Epochs must be between 1 and 1000, got: " + epochs);
+        }
+    }
+
+    public static void validateEpochsWithLoad(int epochs) throws ConfigValidationException {
+        if (epochs < 0 || epochs > 1000) {
+            throw new ConfigValidationException("epochs",
+                    "Epochs must be between 0 and 1000 when loading a pre-trained model, got: " + epochs);
         }
     }
 

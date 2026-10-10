@@ -1,3 +1,4 @@
 .idea/
 out/
-.csv
+bin/
+*.csv

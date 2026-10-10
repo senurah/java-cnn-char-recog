@@ -63,6 +63,16 @@ public final class ConfigRenderer {
         sb.append(String.format("   Classes (Output) : %d\n", config.getNumClasses()));
         sb.append(String.format("   Learning Rate    : %.4f\n", config.getFcLearningRate()));
 
+        if (config.getSavePath() != null || config.getLoadPath() != null) {
+            sb.append("\n [Model Persistence]\n");
+            if (config.getLoadPath() != null) {
+                sb.append(String.format("   Load Weights From: %s\n", config.getLoadPath()));
+            }
+            if (config.getSavePath() != null) {
+                sb.append(String.format("   Save Weights To  : %s\n", config.getSavePath()));
+            }
+        }
+
         sb.append("========================================================================\n");
 
         return sb.toString();

@@ -161,6 +161,12 @@ public final class CliArgsParser {
                     case "--test-path":
                         builder.testPath(val);
                         break;
+                    case "--save":
+                        builder.savePath(val);
+                        break;
+                    case "--load":
+                        builder.loadPath(val);
+                        break;
                     default:
                         throw new CliParseException(
                                 String.format("Unknown option '%s'. Use --help for available options.", flag));
@@ -251,10 +257,16 @@ public final class CliArgsParser {
                 + "      --classes <N>          Number of target output classes (default: 10)\n"
                 + "      --fc-lr <F>            Learning rate for dense layer weights (default: 0.1)\n"
                 + "\n"
+                + "Model Persistence Options:\n"
+                + "      --save <PATH>          Export trained model weights to the specified file\n"
+                + "      --load <PATH>          Load pre-trained model weights before evaluation/training\n"
+                + "\n"
                 + "Examples:\n"
                 + "  java Main                                # Run with default hyperparameters\n"
                 + "  java Main --quick                        # Fast sanity test on sample slice\n"
                 + "  java Main --epochs 5 --filters 16        # Custom epochs and filter count\n"
+                + "  java Main --quick --save weights.bin     # Train and save weights to file\n"
+                + "  java Main --load weights.bin --epochs 0  # Load weights and evaluate without retraining\n"
                 + "  java Main --custom-configuration -v      # Interactive wizard with parameter explanations\n";
     }
 }

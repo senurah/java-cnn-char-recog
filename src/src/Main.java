@@ -8,6 +8,7 @@ import cli.InteractiveConfigWizard;
 import cli.ParameterExplainer;
 import data.DataReader;
 import data.Image;
+import network.ModelSerializer;
 import network.NetworkBuilder;
 import network.NeuralNetwork;
 
@@ -112,23 +113,47 @@ public class Main {
         NeuralNetwork net = builder.build();
         System.out.println("Neural network assembled successfully.\n");
 
-        // 7. Initial evaluation before training
-        System.out.println("Evaluating pre-training baseline accuracy...");
-        float rate = net.test(imagesTest);
-        System.out.printf("Pre-training test accuracy: %.2f%%\n\n", rate * 100.0f);
+        // Phase 2: Load pre-trained weights if requested
+        if (config.getLoadPath() != null && !config.getLoadPath().trim().isEmpty()) {
+            System.out.println("Loading pre-trained model weights from: " + config.getLoadPath());
+            ModelSerializer.loadWeights(net, config.getLoadPath());
+            System.out.println("Pre-trained model weights loaded successfully.\n");
+        }
+
+        // 7. Initial evaluation before training (or after loading weights)
+        float rate;
+        if (config.getLoadPath() != null && !config.getLoadPath().trim().isEmpty()) {
+            System.out.println("Evaluating model accuracy on test dataset...");
+            rate = net.test(imagesTest);
+            System.out.printf("Loaded model test accuracy: %.2f%%\n\n", rate * 100.0f);
+        } else {
+            System.out.println("Evaluating pre-training baseline accuracy...");
+            rate = net.test(imagesTest);
+            System.out.printf("Pre-training test accuracy: %.2f%%\n\n", rate * 100.0f);
+        }
 
         // 8. Training loop
         int epochs = config.getEpochs();
-        System.out.printf("Commencing training for %d epoch(s)...\n", epochs);
+        if (epochs > 0) {
+            System.out.printf("Commencing training for %d epoch(s)...\n", epochs);
 
-        for (int i = 0; i < epochs; i++) {
-            System.out.printf("--- Epoch %d/%d ---\n", (i + 1), epochs);
-            shuffle(imagesTrain);
-            net.train(imagesTrain);
-            rate = net.test(imagesTest);
-            System.out.printf("Test accuracy after epoch %d: %.2f%%\n\n", (i + 1), rate * 100.0f);
+            for (int i = 0; i < epochs; i++) {
+                System.out.printf("--- Epoch %d/%d ---\n", (i + 1), epochs);
+                shuffle(imagesTrain);
+                net.train(imagesTrain);
+                rate = net.test(imagesTest);
+                System.out.printf("Test accuracy after epoch %d: %.2f%%\n\n", (i + 1), rate * 100.0f);
+            }
+            System.out.println("Training completed successfully.");
+        } else {
+            System.out.println("Evaluation mode (--epochs 0): training skipped.");
         }
 
-        System.out.println("Training completed successfully.");
+        // Phase 2: Save trained weights if requested
+        if (config.getSavePath() != null && !config.getSavePath().trim().isEmpty()) {
+            System.out.println("Saving model weights to: " + config.getSavePath());
+            ModelSerializer.save(net, config.getSavePath());
+            System.out.println("Model weights successfully saved to: " + config.getSavePath() + "\n");
+        }
     }
 }

@@ -116,6 +116,18 @@ public final class ParameterExplainer {
             "Use a smaller slice (e.g. 100) for rapid accuracy checks or 0 for full testing set evaluation.",
             "0 (all) or 50 to 10000");
 
+    public static final ParameterDoc SAVE_PATH = new ParameterDoc(
+            "Model Save Path",
+            "File path where trained convolution filters and dense layer weights are serialized.",
+            "Enables reusing trained models for inference or fine-tuning without retraining from scratch.",
+            "Valid filesystem path (e.g. models/mnist_cnn.bin)");
+
+    public static final ParameterDoc LOAD_PATH = new ParameterDoc(
+            "Model Load Path",
+            "File path from which pre-trained CNN weights are loaded into the network.",
+            "Bypasses training from random scratch weights, allowing immediate high-accuracy evaluation or transfer learning.",
+            "Valid existing model file path");
+
     private ParameterExplainer() {}
 
     public static void printDoc(PrintStream out, ParameterDoc doc) {
@@ -139,6 +151,8 @@ public final class ParameterExplainer {
         printDoc(out, SEED);
         printDoc(out, TRAIN_LIMIT);
         printDoc(out, TEST_LIMIT);
+        printDoc(out, SAVE_PATH);
+        printDoc(out, LOAD_PATH);
         out.println("========================================================================");
     }
 }
