@@ -33,6 +33,14 @@ public class FullyConnectedLayer extends Layer{
         setRandomWeights();
     }
 
+    public FullyConnectedLayer(int _inLength, int _outLength, double _learningRate, double[][] weights) {
+        this._inLength = _inLength;
+        this._outLength = _outLength;
+        this.SEED = 0L;
+        this._learningRate = _learningRate;
+        setWeights(weights);
+    }
+
     //forward pass in the fullyConnected layer
     public double[] fullyConnectedForwardPass(double[] input){
         double[] z = new double[_outLength];
@@ -197,5 +205,38 @@ public class FullyConnectedLayer extends Layer{
         }
     }
 
+    public double[][] getWeights() {
+        return _weights;
+    }
 
+    public void setWeights(double[][] weights) {
+        if (weights == null) {
+            throw new IllegalArgumentException("Weights array cannot be null.");
+        }
+        if (weights.length != _inLength) {
+            throw new IllegalArgumentException(String.format(
+                    "Weights rows mismatch: expected %d, got %d", _inLength, weights.length));
+        }
+        if (_inLength > 0 && weights[0].length != _outLength) {
+            throw new IllegalArgumentException(String.format(
+                    "Weights cols mismatch: expected %d, got %d", _outLength, weights[0].length));
+        }
+        double[][] copy = new double[_inLength][_outLength];
+        for (int i = 0; i < _inLength; i++) {
+            System.arraycopy(weights[i], 0, copy[i], 0, _outLength);
+        }
+        this._weights = copy;
+    }
+
+    public int getInLength() {
+        return _inLength;
+    }
+
+    public int getOutLength() {
+        return _outLength;
+    }
+
+    public double getLearningRate() {
+        return _learningRate;
+    }
 }

@@ -38,6 +38,17 @@ public class ConvolutionLayer extends Layer{
         generateRandomFilters(numFilters);
     }
 
+    public ConvolutionLayer(int _filterSize, int _stepSize, int _inLength, int _inRows, int _inCols, double _learningRate, List<double[][]> filters) {
+        this.SEED = 0L;
+        this._filterSize = _filterSize;
+        this._stepSize = _stepSize;
+        this._inLength = _inLength;
+        this._inRows = _inRows;
+        this._inCols = _inCols;
+        this._learningRate = _learningRate;
+        setFilters(filters);
+    }
+
     //method to generate filters
     private void generateRandomFilters(int numFilters){
         List<double[][]> filters = new ArrayList<>();
@@ -395,5 +406,60 @@ public class ConvolutionLayer extends Layer{
     public int getOutputElements() {
         //OutputRows * OutputCols * OutputLength
         return getOutputLength()*getOutputRows()*getOutputCols();
+    }
+
+    public List<double[][]> getFilters() {
+        return _filters;
+    }
+
+    public void setFilters(List<double[][]> filters) {
+        if (filters == null || filters.isEmpty()) {
+            throw new IllegalArgumentException("Filters list cannot be null or empty.");
+        }
+        for (int i = 0; i < filters.size(); i++) {
+            double[][] filter = filters.get(i);
+            if (filter == null || filter.length != _filterSize || (filter.length > 0 && filter[0].length != _filterSize)) {
+                throw new IllegalArgumentException(String.format(
+                        "Filter at index %d has invalid dimensions: expected %dx%d",
+                        i, _filterSize, _filterSize));
+            }
+        }
+        List<double[][]> copy = new ArrayList<>(filters.size());
+        for (double[][] f : filters) {
+            double[][] fCopy = new double[_filterSize][_filterSize];
+            for (int r = 0; r < _filterSize; r++) {
+                System.arraycopy(f[r], 0, fCopy[r], 0, _filterSize);
+            }
+            copy.add(fCopy);
+        }
+        this._filters = copy;
+    }
+
+    public int getFilterSize() {
+        return _filterSize;
+    }
+
+    public int getStepSize() {
+        return _stepSize;
+    }
+
+    public int getInLength() {
+        return _inLength;
+    }
+
+    public int getInRows() {
+        return _inRows;
+    }
+
+    public int getInCols() {
+        return _inCols;
+    }
+
+    public double getLearningRate() {
+        return _learningRate;
+    }
+
+    public int getNumFilters() {
+        return _filters != null ? _filters.size() : 0;
     }
 }

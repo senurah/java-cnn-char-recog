@@ -16,6 +16,10 @@ public class DataReader {
 
     //method to return a list of images
     public List<Image> readData(String path){
+        return readData(path, 0);
+    }
+
+    public List<Image> readData(String path, int limit){
 
         //creating the empty list of images
         List<Image> images = new ArrayList<>();
@@ -36,6 +40,9 @@ public class DataReader {
 
             //looping the lines
             while((line = dataReader.readLine()) != null){
+                if(limit > 0 && images.size() >= limit){
+                    break;
+                }
                 if(line.trim().isEmpty()){
                     continue;
                 }

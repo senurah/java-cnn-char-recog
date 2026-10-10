@@ -168,4 +168,24 @@ public class MaxPoolLayer extends Layer{
     public int getOutputElements() {
         return getOutputLength() * getOutputCols() * getOutputRows();
     }
+
+    public int getStepSize() {
+        return _stepSize;
+    }
+
+    public int getWindowSize() {
+        return _windowSize;
+    }
+
+    public int getInLength() {
+        return _inLength;
+    }
+
+    public int getInRows() {
+        return _inRows;
+    }
+
+    public int getInCols() {
+        return _inCols;
+    }
 }

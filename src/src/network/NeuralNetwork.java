@@ -134,7 +134,21 @@ public class NeuralNetwork {
         }
     }
 
+    public List<Layer> getLayers() {
+        return _layers;
+    }
 
+    public double getScaleFactor() {
+        return scaleFactor;
+    }
 
+    public void setScaleFactor(double scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
 
+    public double[] getOutput(Image image) {
+        List<double[][]> inList = new ArrayList<>();
+        inList.add(multiply(image.getData(), (1.0 / scaleFactor)));
+        return _layers.get(0).getOutput(inList);
+    }
 }
